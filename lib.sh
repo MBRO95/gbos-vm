@@ -134,8 +134,8 @@ GOOGLEBOOK_RAW_SHA256="9e8674c98796f78b2abe9d5ee0bdd3f31602bd452e3c2799f647849be
 CUTTLEFISH_BUILD="16373615"
 CUTTLEFISH_ZIP="aosp_cf_arm64_only_phone-img-16373615.zip"
 CUTTLEFISH_SHA256="051caf8072ba9fb417e05999de2984752e44e13ce70b6c49c669f0a73db85c18"
-UTM_DMG_URL="https://github.com/utmapp/UTM/releases/download/v5.0.6/UTM.dmg"
-UTM_DMG_SHA256="6a722486a660e0ab2cf5826bbeaee0f5963999029366709f5a3048d73b1d7cb1"
+UTM_DMG_URL="https://github.com/utmapp/UTM/releases/download/v5.0.7/UTM.dmg"
+UTM_DMG_SHA256="80c2161cae4c1711ae364ed99de8a0e92396287abf85eb583426c7627d039ad9"
 # Large downloads go here; point GOOGLEBOOK_DOWNLOADS at an existing folder to reuse them.
 DOWNLOADS="${GOOGLEBOOK_DOWNLOADS:-$WORK/downloads}"
 # Resumable download of a large file, then checksum verification.
