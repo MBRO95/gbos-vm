@@ -6,7 +6,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 WORK="${GOOGLEBOOK_WORK:-$ROOT/work}"
 BUILD_REQUIREMENTS="${GBOS_BUILD_REQUIREMENTS:-$ROOT/host/requirements-build.txt}"
 [ -f "$BUILD_REQUIREMENTS" ] || BUILD_REQUIREMENTS="$ROOT/requirements-build.txt"
-# UTM 5.0.6 beta app bundle: supplies QEMU and the epoxy, Vulkan, MoltenVK and ANGLE frameworks.
+# UTM 5.0.7 beta app bundle: supplies QEMU and the epoxy, Vulkan, MoltenVK and ANGLE frameworks.
 UTM_BETA_APP="${UTM_BETA_APP:-$WORK/UTM-beta/UTM.app}"
 # Mesa source tree: supplies Khronos headers for the host build and is the guest driver source.
 MESA_SRC="${MESA_SRC:-$WORK/src/mesa-26.2.4}"

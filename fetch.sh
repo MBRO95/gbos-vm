@@ -17,11 +17,11 @@ for fv in erofs-utils:1.9.4 e2fsprogs:1.47.4 lz4:1.10.0; do
   [ "${have%%_*}" = "${fv#*:}" ] || echo "note: ${fv%%:*} is ${have:-missing}; tested with ${fv#*:}"
 done
 
-say "UTM 5.0.6 beta (QEMU, MoltenVK, ANGLE, SPICE)"
+say "UTM 5.0.7 beta (QEMU, MoltenVK, ANGLE, SPICE)"
 if [ ! -d "$UTM_BETA_APP" ]; then
-  fetch_big "$UTM_DMG_URL" "$DOWNLOADS/UTM-5.0.6.dmg" "$UTM_DMG_SHA256"
+  fetch_big "$UTM_DMG_URL" "$DOWNLOADS/UTM-5.0.7.dmg" "$UTM_DMG_SHA256"
   mnt="$(mktemp -d)"; mounted_here=1
-  if ! hdiutil attach -quiet -nobrowse -readonly -mountpoint "$mnt" "$DOWNLOADS/UTM-5.0.6.dmg" 2>/dev/null; then
+  if ! hdiutil attach -quiet -nobrowse -readonly -mountpoint "$mnt" "$DOWNLOADS/UTM-5.0.7.dmg" 2>/dev/null; then
     # Already mounted somewhere (macOS refuses a second attach): use that mount instead.
     rmdir "$mnt"; mounted_here=0
     mnt="$(hdiutil info -plist | python3 -c '
@@ -31,8 +31,8 @@ for image in plistlib.loads(sys.stdin.buffer.read()).get("images",[]):
     if os.path.realpath(image.get("image-path",""))==want:
         for e in image.get("system-entities",[]):
             if e.get("mount-point"): print(e["mount-point"])
-' "$DOWNLOADS/UTM-5.0.6.dmg" | head -1)"
-    [ -d "$mnt/UTM.app" ] || die "could not mount $DOWNLOADS/UTM-5.0.6.dmg"
+' "$DOWNLOADS/UTM-5.0.7.dmg" | head -1)"
+    [ -d "$mnt/UTM.app" ] || die "could not mount $DOWNLOADS/UTM-5.0.7.dmg"
   fi
   mkdir -p "$(dirname "$UTM_BETA_APP")"; cp -R "$mnt/UTM.app" "$UTM_BETA_APP"
   if [ "$mounted_here" = 1 ]; then hdiutil detach -quiet "$mnt"; rmdir "$mnt" 2>/dev/null || true; fi

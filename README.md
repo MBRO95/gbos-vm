@@ -165,7 +165,7 @@ Nothing from Google or UTM is redistributed here. The script fetches each of the
 
 - Googlebook recovery image — `dl.google.com` (build `16471258`)
 - Cuttlefish virtual device image — `ci.android.com` (build `16373615`)
-- UTM 5.0.6 beta — the official GitHub release (for its QEMU, MoltenVK and ANGLE)
+- UTM 5.0.7 beta — the official GitHub release (for its QEMU, MoltenVK and ANGLE)
 - Mesa 26.2.4, libsepol 3.11, bison 3.8.2 — their upstream release tarballs
 
 ## Credits
