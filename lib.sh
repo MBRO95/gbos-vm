@@ -4,7 +4,8 @@ set -Eeuo pipefail
 trap 'rc=$?; [ "$BASH_SUBSHELL" -gt 0 ] || { printf "error: %s stopped at line %s (exit %s)\n" "${BASH_SOURCE[0]##*/}" "$LINENO" "$rc" >&2; printf "error: command: %s\n" "$BASH_COMMAND" >&2; }' ERR
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 WORK="${GOOGLEBOOK_WORK:-$ROOT/work}"
-BUILD_REQUIREMENTS="$ROOT/requirements-build.txt"
+BUILD_REQUIREMENTS="${GBOS_BUILD_REQUIREMENTS:-$ROOT/host/requirements-build.txt}"
+[ -f "$BUILD_REQUIREMENTS" ] || BUILD_REQUIREMENTS="$ROOT/requirements-build.txt"
 # UTM 5.0.6 beta app bundle: supplies QEMU and the epoxy, Vulkan, MoltenVK and ANGLE frameworks.
 UTM_BETA_APP="${UTM_BETA_APP:-$WORK/UTM-beta/UTM.app}"
 # Mesa source tree: supplies Khronos headers for the host build and is the guest driver source.
@@ -69,8 +70,16 @@ ensure_build_env() {
   if ! "$BUILD_ENV_DIR/bin/python" -m pip --version >/dev/null 2>&1; then
     "$BUILD_ENV_DIR/bin/python" -m ensurepip --upgrade || die "could not initialize pip in $BUILD_ENV_DIR"
   fi
-  run_logged "$WORK/build/python-requirements.log" "Python build requirements installation" \
-    "$BUILD_ENV_DIR/bin/python" -m pip install --disable-pip-version-check -r "$BUILD_REQUIREMENTS"
+  local req_hash pip_flags=()
+  req_hash="$(shasum -a 256 "$BUILD_REQUIREMENTS" | cut -d' ' -f1)"
+  if grep -q -- '--hash=' "$BUILD_REQUIREMENTS"; then
+    pip_flags+=(--require-hashes)
+  fi
+  if [ ! -f "$BUILD_ENV_DIR/.requirements-sha256" ] || [ "$(cat "$BUILD_ENV_DIR/.requirements-sha256" 2>/dev/null || true)" != "$req_hash" ]; then
+    run_logged "$WORK/build/python-requirements.log" "Python build requirements installation" \
+      "$BUILD_ENV_DIR/bin/python" -m pip install --disable-pip-version-check "${pip_flags[@]}" -r "$BUILD_REQUIREMENTS"
+    echo "$req_hash" > "$BUILD_ENV_DIR/.requirements-sha256"
+  fi
   "$BUILD_ENV_DIR/bin/python" -m pip check || die "Python build environment has inconsistent packages"
   "$BUILD_ENV_DIR/bin/python" -c 'import mako, packaging, yaml'
   [ "$("$BUILD_ENV_DIR/bin/meson" --version)" = "1.12.1" ] || die "expected Meson 1.12.1 in $BUILD_ENV_DIR"
@@ -112,11 +121,12 @@ BISON_URL="https://ftp.gnu.org/gnu/bison/bison-3.8.2.tar.xz"
 BISON_SHA256="9bba0214ccf7f1079c5d59210045227bcf619519840ebfa80cd3849cff5a5bf2"
 LIBSEPOL_SHA256="79f3d2c88f44b7eb5cf54d9792e03232297e17f97a179163f2750099a00f164d"
 LIBSEPOL_URL="https://github.com/SELinuxProject/selinux/releases/download/3.11/libsepol-3.11.tar.gz"
-# Download a file once and verify it (pass an empty checksum to print it instead).
+# Download once and verify against a pinned checksum.
 fetch() { # url dest sha256
-  if [ ! -f "$2" ]; then mkdir -p "$(dirname "$2")"; curl -fL --retry 3 -o "$2.part" "$1"; mv "$2.part" "$2"; fi
+  [ -n "$3" ] || die "no pinned checksum for $1"
+  if [ ! -f "$2" ]; then mkdir -p "$(dirname "$2")"; curl -fL --proto =https --proto-redir =https --retry 3 -o "$2.part" "$1"; mv "$2.part" "$2"; fi
   local got; got="$(shasum -a 256 "$2" | cut -d' ' -f1)"
-  if [ -z "$3" ]; then echo "sha256 $got  $2"; elif [ "$got" != "$3" ]; then die "checksum mismatch for $2 (got $got)"; fi
+  [ "$got" = "$3" ] || die "checksum mismatch for $2 (got $got)"
 }
 GOOGLEBOOK_URL="https://dl.google.com/device/recovery/mica-user/16471258/recovery.zip"
 GOOGLEBOOK_ZIP_SHA256="cb68dd6dbd73e568cfeecca0cbd4ceb23338640814dc3ee52aba5507e5a645d7"
@@ -130,7 +140,8 @@ UTM_DMG_SHA256="6a722486a660e0ab2cf5826bbeaee0f5963999029366709f5a3048d73b1d7cb1
 DOWNLOADS="${GOOGLEBOOK_DOWNLOADS:-$WORK/downloads}"
 # Resumable download of a large file, then checksum verification.
 fetch_big() { # url dest sha256
-  if [ ! -f "$2" ]; then mkdir -p "$(dirname "$2")"; curl -fL --retry 5 -C - -o "$2.part" "$1"; mv "$2.part" "$2"; fi
+  [ -n "$3" ] || die "no pinned checksum for $1"
+  if [ ! -f "$2" ]; then mkdir -p "$(dirname "$2")"; curl -fL --proto =https --proto-redir =https --retry 5 -C - -o "$2.part" "$1"; mv "$2.part" "$2"; fi
   echo "verifying $(basename "$2")"
   [ "$(shasum -a 256 "$2" | cut -d' ' -f1)" = "$3" ] || die "checksum mismatch for $2"
 }
