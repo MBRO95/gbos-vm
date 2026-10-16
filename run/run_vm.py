@@ -27,13 +27,13 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import vm_control
 
-# Kernel command line for the pinned image (mica-user 16471258). The vbmeta values describe the
+# Kernel command line for the pinned image (quartz-user 16471258). The vbmeta values describe the
 # original, unmodified vbmeta partition of that image.
 CMDLINE = ('console=ttyAMA0,115200 earlycon=pl011,0x9000000 panic=0 root=/dev/ram0 '
            'androidboot.hardware=android-desktop androidboot.hardware.platform=android-desktop '
            'androidboot.slot_suffix=_a androidboot.boot_devices=3f000000.pcie androidboot.vbmeta.size=7680 '
            'androidboot.vbmeta.hash_alg=sha256 '
-           'androidboot.vbmeta.digest=9118d58c024a0b43fef17a1dcdf6b999b5ea9cbc053fd4377d5d78c445b15692 '
+           'androidboot.vbmeta.digest=2872cacf61780ae7ff53ede075c7bb06f6cd71741b4f99255c2b96027bb84b5b '
            'androidboot.vbmeta.device_state=unlocked androidboot.verifiedbootstate=orange '
            'androidboot.veritymode=enforcing printk.devkmsg=on '
            'androidboot.vendor.apex.com.android.hardware.keymint.strongbox.desktop=none '
@@ -125,6 +125,13 @@ def main():
     with os.fdopen(os.open(out / 'token', os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600), 'w') as f: f.write(token)
 
     netsim, cmdline = None, CMDLINE
+    if (image / 'image_info.json').exists():
+        try:
+            _info = json.loads((image / 'image_info.json').read_text())
+            if 'vbmeta_digest' in _info:
+                cmdline = re.sub(r'androidboot\.vbmeta\.digest=[0-9a-f]+', f"androidboot.vbmeta.digest={_info['vbmeta_digest']}", cmdline)
+        except Exception:
+            pass
     netsimd = None if args.no_bluetooth else find_netsimd()
     if netsimd:
         netsim, bt_port = start_netsimd(netsimd, out)

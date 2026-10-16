@@ -128,9 +128,9 @@ fetch() { # url dest sha256
   local got; got="$(shasum -a 256 "$2" | cut -d' ' -f1)"
   [ "$got" = "$3" ] || die "checksum mismatch for $2 (got $got)"
 }
-GOOGLEBOOK_URL="https://dl.google.com/device/recovery/mica-user/16471258/recovery.zip"
-GOOGLEBOOK_ZIP_SHA256="cb68dd6dbd73e568cfeecca0cbd4ceb23338640814dc3ee52aba5507e5a645d7"
-GOOGLEBOOK_RAW_SHA256="b0fd614ffe1a088fa3451a4b81c55a73f83e246286184a46ca306250db9af1f1"
+GOOGLEBOOK_URL="https://dl.google.com/device/recovery/quartz-user/16471258/recovery.zip"
+GOOGLEBOOK_ZIP_SHA256="3ba358a46c3c61d1a8b4b34e81c11227d7b45207e90440556fb77b6e021c9363"
+GOOGLEBOOK_RAW_SHA256="9e8674c98796f78b2abe9d5ee0bdd3f31602bd452e3c2799f647849beb53b0c5"
 CUTTLEFISH_BUILD="16373615"
 CUTTLEFISH_ZIP="aosp_cf_arm64_only_phone-img-16373615.zip"
 CUTTLEFISH_SHA256="051caf8072ba9fb417e05999de2984752e44e13ce70b6c49c669f0a73db85c18"

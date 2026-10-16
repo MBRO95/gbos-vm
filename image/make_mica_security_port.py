@@ -12,7 +12,9 @@ from erofs_metadata import metadata
 from relocate_vendor import relocate
 R=Path(__file__).resolve().parents[1];O=R/'artifacts/mica'/sys.argv[1];assert O.parent==R/'artifacts/mica';O.mkdir(parents=True,exist_ok=True)
 D=R/'experiments/erofs-utils/1.9.4/bin';E=R/'experiments/ext4-tools/e2fsprogs/1.47.4/sbin/debugfs'
-raw=R/'artifacts/mica-recovery.raw';off=5647630336;partsize=385949696
+raw=R/'artifacts/mica-recovery.raw'
+_info=json.loads((R/'artifacts/mica/image_info.json').read_text()) if (R/'artifacts/mica/image_info.json').exists() else {}
+off=_info.get('vendor_offset',5647630336);partsize=_info.get('vendor_size',392548352)
 payload=R/'artifacts/security-port-review/rust_nonsecure_payload.img'
 # Optional: take rebuilt guest components and the policy tool from publish/build-guest.sh output.
 GUEST=Path(os.environ['GOOGLEBOOK_GUEST_DIR']) if os.environ.get('GOOGLEBOOK_GUEST_DIR') else None

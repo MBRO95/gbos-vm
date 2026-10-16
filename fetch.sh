@@ -60,10 +60,10 @@ if [ ! -f "$WORK/cuttlefish/manifest.json" ] || [ ! -f "$WORK/cuttlefish/bluetoo
 fi
 
 say "Googlebook recovery image (7.6 GB download, 19 GB unpacked)"
-if [ ! -f "$WORK/googlebook/mica-recovery.raw" ]; then
-  fetch_big "$GOOGLEBOOK_URL" "$DOWNLOADS/mica-recovery.zip" "$GOOGLEBOOK_ZIP_SHA256"
+if [ ! -f "$WORK/googlebook/mica-recovery.raw" ] && [ ! -f "$WORK/googlebook/quartz-recovery.raw" ]; then
+  fetch_big "$GOOGLEBOOK_URL" "$DOWNLOADS/quartz-recovery.zip" "$GOOGLEBOOK_ZIP_SHA256"
   mkdir -p "$WORK/googlebook"
-  python3 - "$DOWNLOADS/mica-recovery.zip" "$WORK/googlebook/mica-recovery.raw" "$GOOGLEBOOK_RAW_SHA256" <<'PY'
+  python3 - "$DOWNLOADS/quartz-recovery.zip" "$WORK/googlebook/quartz-recovery.raw" "$GOOGLEBOOK_RAW_SHA256" <<'PY'
 import hashlib,os,sys,zipfile
 src,dst,want=sys.argv[1:4];h=hashlib.sha256()
 with zipfile.ZipFile(src) as z, z.open('android-desktop_signed_recovery_image.bin') as f, open(dst+'.part','wb') as out:
@@ -71,5 +71,6 @@ with zipfile.ZipFile(src) as z, z.open('android-desktop_signed_recovery_image.bi
 if h.hexdigest()!=want: os.unlink(dst+'.part'); sys.exit('extracted image does not match the pinned checksum')
 os.rename(dst+'.part',dst)
 PY
+  ln -sf quartz-recovery.raw "$WORK/googlebook/mica-recovery.raw"
 fi
 say "Fetch complete"

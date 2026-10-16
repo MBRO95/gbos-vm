@@ -52,7 +52,7 @@ mv artifacts/mica/base-heap-vblk/googlebook.raw artifacts/mica/base-heap-vblk/in
 # Holds all guest data: keep it private.
 chmod 600 "$IMAGE_DIR/googlebook.raw"
 cp artifacts/mica/normal/kernel.Image "$IMAGE_DIR/kernel.Image"
-cp artifacts/mica/base-heap-vblk/*.json "$IMAGE_DIR/" 2>/dev/null || true
+cp artifacts/mica/base-heap-vblk/*.json artifacts/mica/*.json "$IMAGE_DIR/" 2>/dev/null || true
 cd "$WORK"; rm -rf "$WS"
 say "Image ready: $IMAGE_DIR"
 ls -lh "$IMAGE_DIR" | grep -v json
