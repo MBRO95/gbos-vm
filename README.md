@@ -31,24 +31,27 @@ The first boot takes about 45 seconds on a M5 MacBook. If you land on a user pic
 - An **Apple Silicon Mac**. Intel Macs won't work — this is an ARM guest running on the hypervisor, not emulation.
 - **16 GB of RAM**, realistically. The VM gets 4 GB and the builds want a few more.
 - **Xcode command line tools** and **[Homebrew](https://brew.sh)**.
+- **Python 3.10 or newer** for the build tools. `prereqs.sh` checks for it and can offer to install Homebrew Python.
 - The **Android SDK** with an NDK, a build-tools version, and a platform (API 34+). Android Studio's defaults are fine. We build with NDK `28.2.13676358`; if you don't have that one the script uses your newest (30 is reported to work), or set `ANDROID_NDK` to pick.
 - A **JDK**. If you have Android Studio, its bundled one gets picked up automatically.
 - Optionally, the **Android Emulator** package from the SDK. Bluetooth borrows its virtual radio (see [What doesn't work yet](#what-doesnt-work-yet)); without it the VM boots with no Bluetooth.
 
-`install.sh` checks all of this before it downloads anything, and offers to install what's missing — the Homebrew packages, a JDK, and the Android pieces through Google's `sdkmanager` (you don't need Android Studio). It never asks for `sudo`. Run `./prereqs.sh` on its own to see where you stand.
+`install.sh` checks all of this before it downloads anything, and offers to install what's missing — Homebrew packages, Python, a JDK, and the Android pieces through Google's `sdkmanager` (you don't need Android Studio). It never asks for `sudo`. Run `./prereqs.sh` on its own to see where you stand.
+
+Before downloading, the build creates or reuses a Python 3.10+ virtual environment under `work/` and installs Meson, Ninja, and supporting modules from [`requirements-build.txt`](requirements-build.txt). If an incompatible virtual environment is detected, `work/env` is left in place and a compatible versioned environment is used instead. If configuration or compilation fails, the terminal shows the last log lines and the full log path under `work/build/`.
 
 We build and test on one machine (M5, 16 GB, macOS 27). A couple of people have reported it working on M4 Macs too — if you try it on something else, tell us how it went.
 
 ## Using it
 
-| Shortcut | What it does |
-|---|---|
-| `⌃⌘F` | Full screen |
-| `⌃⌘M` | Cycle pointer modes |
-| `⌃⌥` | Release a captured mouse |
-| `⌃⌘R` | Restart the VM |
-| `⌘V` | Paste the Mac clipboard into the guest |
-| `⌘,` | Settings |
+| Shortcut | What it does                           |
+| -------- | -------------------------------------- |
+| `⌃⌘F`    | Full screen                            |
+| `⌃⌘M`    | Cycle pointer modes                    |
+| `⌃⌥`     | Release a captured mouse               |
+| `⌃⌘R`    | Restart the VM                         |
+| `⌘V`     | Paste the Mac clipboard into the guest |
+| `⌘,`     | Settings                               |
 
 Quitting (or closing the window) shuts Android down properly. Your data lives in `work/image/googlebook.raw` and sticks around between runs.
 
@@ -97,7 +100,7 @@ So: treat it like a dev VM. It's great for poking at the OS. I wouldn’t daily 
 - **Bluetooth is virtual only.** If you have the Android Emulator installed, the VM gets its simulated radio (`netsimd`): Bluetooth turns on, but there's nothing real to pair with. Actual devices would need a USB dongle bridged in, which we haven't built. Without the emulator, Android is told it has no Bluetooth at all.
 - **60 fps cap** on the guest display. The QEMU build we use doesn't expose a refresh rate setting.
 - **Flat shading can be wrong.** Chrome needs a Vulkan extension MoltenVK doesn't have, so we tell the guest it exists. That's fine for almost everything; `flat`-interpolated WebGL content may pick the wrong vertex.
-- **Copying *out* of the guest, right-click, and long sessions** are implemented but haven't had a proper test. They might be fine. They might not.
+- **Copying _out_ of the guest, right-click, and long sessions** are implemented but haven't had a proper test. They might be fine. They might not.
 - **Audio was silent on one boot** and then worked. We don't know why yet.
 
 ## The Custom Bits
@@ -149,6 +152,7 @@ MIT for everything we wrote — see [LICENSE](LICENSE). The patches apply to MIT
 ## AI Usage
 
 The following AI tools were used to assist in this project:
+
 - OpenAI GPT 6 Astra
 - DeepSeek 4.1 Flash
 - Anthropic Claude Opus 5.5
